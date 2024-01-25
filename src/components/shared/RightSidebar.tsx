@@ -4,22 +4,22 @@ import RenderTag from './RenderTag';
 
 const hotQuestions = [
   {
-    _id: 1,
+    _id: '1',
     title:
       'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
   },
-  { _id: 2, title: 'Is it only me or the font is bolder than necessary?' },
-  { _id: 3, title: 'Can I get the course for free?' },
-  { _id: 4, title: 'Redux Toolkit Not Updating State as Expected' },
-  { _id: 5, title: 'Async/Await Function Not Handling Errors Properly' },
+  { _id: '2', title: 'Is it only me or the font is bolder than necessary?' },
+  { _id: '3', title: 'Can I get the course for free?' },
+  { _id: '4', title: 'Redux Toolkit Not Updating State as Expected' },
+  { _id: '5', title: 'Async/Await Function Not Handling Errors Properly' },
 ];
 
 const popularTags = [
-  { _id: 1, name: 'Javascript', totalQuestions: 5 },
-  { _id: 2, name: 'React', totalQuestions: 5 },
-  { _id: 3, name: 'Nextjs', totalQuestions: 5 },
-  { _id: 4, name: 'Astro', totalQuestions: 2 },
-  { _id: 5, name: 'Remix', totalQuestions: 10 },
+  { _id: '1', name: 'Javascript', totalQuestions: 5 },
+  { _id: '2', name: 'React', totalQuestions: 5 },
+  { _id: '3', name: 'Nextjs', totalQuestions: 5 },
+  { _id: '4', name: 'Astro', totalQuestions: 2 },
+  { _id: '5', name: 'Remix', totalQuestions: 10 },
 ];
 
 const RightSidebar = () => {
@@ -53,13 +53,13 @@ const RightSidebar = () => {
       <div className="mt-16">
         <h3 className="h3-bold text-dark200_light900">Popular Tags</h3>
         <div className="mt-7 flex flex-col gap-4">
-          {popularTags.map(tag => (
+          {popularTags.map((tag) => (
             <RenderTag
               key={tag._id}
               _id={tag._id}
               name={tag.name}
               totalQuestions={tag.totalQuestions}
-              showCount 
+              showCount
             />
           ))}
         </div>

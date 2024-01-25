@@ -6,6 +6,57 @@ import LocalSearch from '@/components/shared/search/LocalSearch';
 import { Button } from '@/components/ui/button';
 
 import { HomePageFilters } from '@/constants/filters';
+import QuestionCard from '@/components/cards/QuestionCard';
+import NoResult from '@/components/shared/NoResult';
+
+const questions = [
+  {
+    _id: '1',
+    title:
+      'Best practices for data fetching in a Next.js application with Server-Side Rendering (SSR)?',
+    tags: [
+      { _id: '1', name: 'next.js' },
+      { _id: '2', name: 'react.js' },
+    ],
+    author: { _id: 'authorId1', name: 'John Doe', picture: 'john-doe.jpg' },
+    upvotes: 1150,
+    views: 105080,
+    answers: [
+      {
+        /* answer object properties here */
+      },
+      {
+        /* answer object properties here */
+      },
+    ],
+    createdAt: new Date('2024-01-04T12:53:06.000Z'),
+  },
+  {
+    _id: '2',
+    title: 'Redux Toolkit Not Updating State as Expected',
+    tags: [
+      { _id: '2', name: 'react.js' },
+      { _id: '3', name: 'redux' },
+    ],
+    author: {
+      _id: 'authorId2',
+      name: 'Angela Smith',
+      picture: 'angela-smith.jpg',
+    },
+    upvotes: 10689,
+    views: 498689,
+    answers: [
+      {
+        /* answer object properties here */
+      },
+      {
+        /* answer object properties here */
+      },
+      // additional answer objects as needed
+    ],
+    createdAt: new Date('2023-12-08T10:25:08.000Z'),
+  },
+];
 
 export default function Home() {
   return (
@@ -33,6 +84,20 @@ export default function Home() {
         />
       </div>
       <HomeFilters />
+      <div className="mt-10 flex w-full flex-col gap-6">
+        {questions.length > 0 ? (
+          questions.map((question) => (
+            <QuestionCard key={question._id} {...question} />
+          ))
+        ) : (
+          <NoResult
+            title="There are no question to show"
+            description="Be the first to break the silence! 🚀 Ask a Question and kickstart the discussion. our query could be the next big thing others learn from. Get involved! 💡"
+            link="/ask-question"
+            linkTitle="Ask a Question"
+          />
+        )}
+      </div>
     </>
   );
 }
