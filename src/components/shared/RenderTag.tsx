@@ -6,6 +6,7 @@ interface RenderTagProps {
   name: string;
   totalQuestions?: number;
   showCount?: boolean;
+  key: any;
 }
 
 const RenderTag = ({

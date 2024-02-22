@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const getTimestamp = (createdAt: Date): string => {
   const now = new Date();
-  const timeDifference = now.getTime() - createdAt.getTime();
+  const timeDifference = now.getTime() - new Date(createdAt).getTime();
 
   const second = 1000;
   const minute = 60 * second;
@@ -49,6 +49,6 @@ export const formatLargeNumber = (inputNumber: number): string => {
     const thousands = (inputNumber / 1000).toFixed(1);
     return `${thousands}K`;
   } else {
-    return inputNumber.toString();
+    return inputNumber?.toString();
   }
 };

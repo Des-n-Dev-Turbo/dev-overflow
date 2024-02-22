@@ -14,6 +14,7 @@ interface QuestionCardProps {
   views: number;
   answers: Array<object>;
   createdAt: Date;
+  key: any;
 }
 
 const QuestionCard = ({
@@ -41,18 +42,19 @@ const QuestionCard = ({
         </div>
       </div>
       <div className="mt-3.5 flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <RenderTag key={tag._id} {...tag} />
-        ))}
+        {tags?.length > 0 &&
+          tags?.map((tag) => (
+            <RenderTag key={tag._id} _id={tag._id} name={tag.name} />
+          ))}
       </div>
       <div className="flex-between mt-6 w-full flex-wrap gap-3">
         <Metric
           imgUrl="/assets/icons/avatar.svg"
           alt="User"
-          value={author.name}
+          value={author?.name}
           title={`
           • asked ${getTimestamp(createdAt)}`}
-          href={`/profile/${author._id}`}
+          href={`/profile/${author?._id}`}
           isAuthor
           textStyles="body-medium text-dark400_light700"
         />
@@ -66,7 +68,7 @@ const QuestionCard = ({
         <Metric
           imgUrl="/assets/icons/message.svg"
           alt="Message"
-          value={answers.length}
+          value={answers?.length}
           title=" Answers"
           textStyles="small-medium text-dark400_light800"
         />
