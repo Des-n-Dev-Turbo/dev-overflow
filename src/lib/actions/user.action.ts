@@ -1,12 +1,14 @@
 'use server';
+import { connectToDatabase } from './../mongoose';
 import { revalidatePath } from 'next/cache';
-import { connectToDatabase } from '../mongoose';
+
 import User from '@/database/user.model';
 import Question from '@/database/question.model';
 
 import type {
   CreateUserParams,
   DeleteUserParams,
+  GetAllUsersParams,
   GetUserByIdParams,
   UpdateUserParams,
 } from './shared.types';
@@ -86,6 +88,20 @@ export const deleteUser = async (params: DeleteUserParams) => {
     const deletedUser = await User.findOneAndDelete({ clerkId });
 
     return deletedUser;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getAllUsers = async (params: GetAllUsersParams) => {
+  try {
+    await connectToDatabase();
+
+    const { page = 1, pageSize = 20, filter, searchQuery } = params;
+
+    const users = await User.find({}).sort({ createdAt: -1 });
+
+    return { users };
   } catch (error) {
     console.log(error);
   }

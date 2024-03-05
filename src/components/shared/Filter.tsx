@@ -11,7 +11,7 @@ import {
 interface FilterProps {
   filters: { name: string; value: string }[];
   otherClasses: string;
-  containerClasses: string;
+  containerClasses?: string;
 }
 
 const Filter = ({ filters, otherClasses, containerClasses }: FilterProps) => {
@@ -28,7 +28,11 @@ const Filter = ({ filters, otherClasses, containerClasses }: FilterProps) => {
         <SelectContent>
           <SelectGroup>
             {filters.map((filter) => (
-              <SelectItem value={filter.value} key={filter.value}>
+              <SelectItem
+                value={filter.value}
+                key={filter.value}
+                className="text-dark500_light700"
+              >
                 {filter.name}
               </SelectItem>
             ))}

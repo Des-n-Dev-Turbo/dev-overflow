@@ -1,11 +1,11 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-
-import { sidebarLinks } from '@/constants';
 import { usePathname } from 'next/navigation';
+
 import { SignedOut } from '@clerk/nextjs';
 import { Button } from '../ui/button';
+import { sidebarLinks } from '@/constants';
 
 const LeftSidebar = () => {
   const pathname = usePathname();
@@ -21,10 +21,11 @@ const LeftSidebar = () => {
           return (
             <Link
               href={item.route}
-              className={`${isActive
+              className={`${
+                isActive
                   ? 'primary-gradient rounded-lg text-light-900'
                   : 'text-dark300_light900'
-                } flex items-center justify-start gap-4 bg-transparent p-4`}
+              } flex items-center justify-start gap-4 bg-transparent p-4`}
               key={item.route}
             >
               <Image
@@ -78,6 +79,5 @@ const LeftSidebar = () => {
     </section>
   );
 };
-
 
 export default LeftSidebar;
