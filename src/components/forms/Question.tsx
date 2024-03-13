@@ -22,6 +22,7 @@ import { QuestionsSchema } from '@/lib/validation';
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
 import { createQuestion } from '@/lib/actions/question.action';
+import { useTheme } from '@/context/ThemeProvider';
 
 const type: any = 'create';
 
@@ -31,6 +32,7 @@ interface QuestionFormProps {
 
 const Question = ({ mongoUserId }: QuestionFormProps) => {
   const editorRef = useRef(null);
+  const { mode } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -174,6 +176,8 @@ const Question = ({ mongoUserId }: QuestionFormProps) => {
                       'alignright alignjustify | bullist numlist ',
                     content_style:
                       'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                    skin: mode === 'dark' ? 'oxide-dark' : 'oxide',
+                    content_css: mode === 'dark' ? 'dark' : 'light',
                   }}
                   onBlur={field.onBlur}
                   onEditorChange={(content) => field.onChange(content)}

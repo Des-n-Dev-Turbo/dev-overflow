@@ -5,7 +5,11 @@ import Question from '@/database/question.model';
 import Tag from '@/database/tag.model';
 import User from '@/database/user.model';
 
-import type { CreateQuestionParams, GetQuestionsParams } from './shared.types';
+import type {
+  CreateQuestionParams,
+  GetQuestionByIdParams,
+  GetQuestionsParams,
+} from './shared.types';
 import { revalidatePath } from 'next/cache';
 
 export const getQuestions = async (params: GetQuestionsParams) => {
@@ -58,6 +62,30 @@ export const createQuestion = async (params: CreateQuestionParams) => {
     // Increment author's reputation by +5 for creating a question
 
     revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getQuestionById = async (params: GetQuestionByIdParams) => {
+  try {
+    await connectToDatabase();
+
+    const id = params.questionId;
+
+    const questionDetails = await Question.findById(id)
+      .populate({
+        path: 'tags',
+        model: Tag,
+        select: '_id name',
+      })
+      .populate({
+        path: 'author',
+        model: User,
+        select: '_id clerkId name picture',
+      });
+
+    return questionDetails;
   } catch (error) {
     console.log(error);
   }
