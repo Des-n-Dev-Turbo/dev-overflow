@@ -27,7 +27,7 @@ import 'prismjs/components/prism-mongodb';
 import 'prismjs/plugins/line-numbers/prism-line-numbers.js';
 import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
 
-const ParseHTML = ({ data }) => {
+const ParseHTML = ({ data }: { data: string }) => {
   useEffect(() => {
     Prism.highlightAll();
   }, []);
