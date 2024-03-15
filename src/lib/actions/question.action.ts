@@ -1,5 +1,7 @@
 'use server';
-import { connectToDatabase } from '../mongoose';
+import { revalidatePath } from 'next/cache';
+
+import { connectToDatabase } from './../mongoose';
 
 import Question from '@/database/question.model';
 import Tag from '@/database/tag.model';
@@ -9,8 +11,8 @@ import type {
   CreateQuestionParams,
   GetQuestionByIdParams,
   GetQuestionsParams,
+  QuestionVoteParams,
 } from './shared.types';
-import { revalidatePath } from 'next/cache';
 
 export const getQuestions = async (params: GetQuestionsParams) => {
   try {
@@ -57,9 +59,9 @@ export const createQuestion = async (params: CreateQuestionParams) => {
       $push: { tags: { $each: tagDocuments } },
     });
 
-    // Create an interaction record for the user's ask_question action
+    // TODO: Create an interaction record for the user's ask_question action
 
-    // Increment author's reputation by +5 for creating a question
+    // TODO: Increment author's reputation by +5 for creating a question
 
     revalidatePath(path);
   } catch (error) {
@@ -86,6 +88,72 @@ export const getQuestionById = async (params: GetQuestionByIdParams) => {
       });
 
     return questionDetails;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const upvoteQuestion = async (params: QuestionVoteParams) => {
+  try {
+    await connectToDatabase();
+
+    const { questionId, userId, hasupVoted, hasdownVoted, path } = params;
+
+    let updateQuery = {};
+
+    if (hasupVoted) {
+      updateQuery = { $pull: { upvotes: userId } };
+    } else if (hasdownVoted) {
+      updateQuery = {
+        $pull: { downvotes: userId },
+        $push: { upvotes: userId },
+      };
+    } else {
+      updateQuery = { $addToSet: { upvotes: userId } };
+    }
+
+    const question = await Question.findByIdAndUpdate(questionId, updateQuery, {
+      new: true,
+    });
+
+    if (!question) throw new Error('Question not found!');
+
+    // TODO: Increase user reputation
+
+    revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const downvoteQuestion = async (params: QuestionVoteParams) => {
+  try {
+    await connectToDatabase();
+
+    const { questionId, userId, hasupVoted, hasdownVoted, path } = params;
+
+    let updateQuery = {};
+
+    if (hasdownVoted) {
+      updateQuery = { $pull: { downvotes: userId } };
+    } else if (hasupVoted) {
+      updateQuery = {
+        $pull: { upvotes: userId },
+        $push: { downvotes: userId },
+      };
+    } else {
+      updateQuery = { $addToSet: { downvotes: userId } };
+    }
+
+    const question = await Question.findByIdAndUpdate(questionId, updateQuery, {
+      new: true,
+    });
+
+    if (!question) throw new Error('Question not found!');
+
+    // TODO: Increase user reputation
+
+    revalidatePath(path);
   } catch (error) {
     console.log(error);
   }

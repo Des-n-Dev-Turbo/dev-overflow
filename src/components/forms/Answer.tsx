@@ -21,12 +21,12 @@ import { AnswerSchema } from '@/lib/validation';
 import { createAnswer } from '@/lib/actions/answer.action';
 
 interface AnswerProps {
-  authorId: string;
+  userId: string;
   questionId: string;
   question: string;
 }
 
-const Answer = ({ authorId, questionId }: AnswerProps) => {
+const Answer = ({ userId, questionId }: AnswerProps) => {
   const editorRef = useRef(null);
   const { mode } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,7 +44,7 @@ const Answer = ({ authorId, questionId }: AnswerProps) => {
     try {
       await createAnswer({
         content: values.answer,
-        author: JSON.parse(authorId),
+        author: JSON.parse(userId),
         path: pathname,
         question: JSON.parse(questionId),
       });
@@ -140,7 +140,7 @@ const Answer = ({ authorId, questionId }: AnswerProps) => {
           />
           <div className="flex justify-end">
             <Button
-              type="button"
+              type="submit"
               className="primary-gradient w-fit text-white"
               disabled={isSubmitting}
             >

@@ -12,6 +12,7 @@ import { getQuestionById } from '@/lib/actions/question.action';
 import { formatLargeNumber, getTimestamp } from '@/lib/utils';
 import { getUserById } from '@/lib/actions/user.action';
 import { redirect } from 'next/navigation';
+import Voting from '@/components/shared/Voting';
 
 const QuestionPage = async ({
   params,
@@ -47,7 +48,18 @@ const QuestionPage = async ({
               {result.author.name}
             </p>
           </Link>
-          <div className="flex justify-end">Voting</div>
+          <div className="flex justify-end">
+            <Voting
+              type="Question"
+              itemId={JSON.stringify(result._id)}
+              userId={JSON.stringify(mongoUser._id)}
+              upvotes={result.upvotes.length}
+              hasUpvoted={result.upvotes.includes(mongoUser._id)}
+              downvotes={result.downvotes.length}
+              hasDownvoted={result.downvotes.includes(mongoUser._id)}
+              hasSaved={mongoUser.saved.includes(result._id)}
+            />
+          </div>
         </div>
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full text-left">
           {result.title}
@@ -89,11 +101,11 @@ const QuestionPage = async ({
       </div>
       <AllAnswers
         questionId={result._id}
-        authorId={JSON.stringify(mongoUser._id)}
+        userId={JSON.stringify(mongoUser._id)}
         totalAnswers={result.answers.length}
       />
       <Answer
-        authorId={JSON.stringify(mongoUser._id)}
+        userId={JSON.stringify(mongoUser._id)}
         question={result.content}
         questionId={JSON.stringify(result._id)}
       />
