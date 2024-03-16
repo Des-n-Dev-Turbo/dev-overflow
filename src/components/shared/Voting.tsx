@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -8,6 +9,8 @@ import {
   upvoteQuestion,
 } from '@/lib/actions/question.action';
 import { downvoteAnswer, upvoteAnswer } from '@/lib/actions/answer.action';
+import { toggleSaveQuestion } from '@/lib/actions/user.action';
+import { viewQuestion } from '@/lib/actions/interaction.action';
 
 interface VotingProps {
   type: string;
@@ -31,10 +34,26 @@ const Voting = ({
   hasSaved,
 }: VotingProps) => {
   const pathname = usePathname();
-  // eslint-disable-next-line no-unused-vars
   const router = useRouter();
 
-  const handleSave = () => {};
+  useEffect(() => {
+    viewQuestion({
+      userId: userId ? JSON.parse(userId) : null,
+      questionId: JSON.parse(itemId),
+    });
+  }, [userId, itemId, pathname, router]);
+
+  const handleSave = async () => {
+    if (!userId) {
+      return;
+    }
+
+    await toggleSaveQuestion({
+      userId: JSON.parse(userId),
+      questionId: JSON.parse(itemId),
+      path: pathname,
+    });
+  };
 
   const handleVote = async (voteType: string) => {
     if (!userId) {
