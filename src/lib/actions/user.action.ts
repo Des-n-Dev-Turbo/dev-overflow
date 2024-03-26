@@ -6,6 +6,7 @@ import { connectToDatabase } from './../mongoose';
 import User from '@/database/user.model';
 import Question from '@/database/question.model';
 import Tag from '@/database/tag.model';
+import Answer from '@/database/answer.model';
 
 import type {
   CreateUserParams,
@@ -13,6 +14,7 @@ import type {
   GetAllUsersParams,
   GetSavedQuestionsParams,
   GetUserByIdParams,
+  GetUserStatsParams,
   ToggleSaveQuestionParams,
   UpdateUserParams,
 } from './shared.types';
@@ -176,6 +178,74 @@ export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
     const savedQuestions = user.saved;
 
     return { questions: savedQuestions };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getUserInfo = async (params: GetUserByIdParams) => {
+  try {
+    await connectToDatabase();
+
+    const { userId } = params;
+
+    const user = await User.findOne({ clerkId: userId });
+
+    if (!user) throw new Error('No user found!');
+
+    const totalQuestions = await Question.countDocuments({ author: user._id });
+
+    const totalAnswers = await Answer.countDocuments({ author: user._id });
+
+    return { user, totalQuestions, totalAnswers };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getUserQuestions = async (params: GetUserStatsParams) => {
+  try {
+    await connectToDatabase();
+
+    // eslint-disable-next-line no-unused-vars
+    const { userId, page, pageSize = 10 } = params;
+
+    const user = await User.findById(userId);
+
+    if (!user) throw new Error('No user found!');
+
+    const totalQuestions = await Question.countDocuments({ author: user._id });
+
+    const userQuestions = await Question.find({ author: user._id })
+      .sort({ views: -1, upvotes: -1 })
+      .populate('tags', '_id name')
+      .populate('author', '_id clerkId picture name');
+
+    return { totalQuestions, questions: userQuestions };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getUserAnswers = async (params: GetUserStatsParams) => {
+  try {
+    await connectToDatabase();
+
+    // eslint-disable-next-line no-unused-vars
+    const { userId, page, pageSize = 10 } = params;
+
+    const user = await User.findById(userId);
+
+    if (!user) throw new Error('No user found!');
+
+    const totalAnswers = await Answer.countDocuments({ author: user._id });
+
+    const userAnswers = await Answer.find({ author: user._id })
+      .sort({ upvotes: -1 })
+      .populate('question', '_id title')
+      .populate('author', '_id clerkId picture name');
+
+    return { totalAnswers, answers: userAnswers };
   } catch (error) {
     console.log(error);
   }

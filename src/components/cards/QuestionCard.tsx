@@ -7,6 +7,7 @@ import { formatLargeNumber, getTimestamp } from '@/lib/utils';
 
 interface QuestionCardProps {
   _id: string;
+  clerkId?: string | null;
   title: string;
   tags: { _id: string; name: string }[];
   author: {
@@ -24,6 +25,7 @@ interface QuestionCardProps {
 
 const QuestionCard = ({
   _id,
+  clerkId,
   title,
   tags,
   author,
