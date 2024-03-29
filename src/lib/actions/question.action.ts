@@ -6,9 +6,13 @@ import { connectToDatabase } from './../mongoose';
 import Question from '@/database/question.model';
 import Tag from '@/database/tag.model';
 import User from '@/database/user.model';
+import Answer from '@/database/answer.model';
+import Interaction from '@/database/interaction.model';
 
 import type {
   CreateQuestionParams,
+  DeleteQuestionParams,
+  EditQuestionParams,
   GetQuestionByIdParams,
   GetQuestionsParams,
   QuestionVoteParams,
@@ -152,6 +156,50 @@ export const downvoteQuestion = async (params: QuestionVoteParams) => {
     if (!question) throw new Error('Question not found!');
 
     // TODO: Increase user reputation
+
+    revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteQuestion = async (params: DeleteQuestionParams) => {
+  try {
+    await connectToDatabase();
+
+    const { questionId, path } = params;
+
+    const deletedQuestion = await Question.findByIdAndDelete(questionId);
+
+    await Answer.deleteMany({ question: deletedQuestion._id });
+
+    await Interaction.deleteMany({ question: deletedQuestion._id });
+
+    await Tag.updateMany(
+      { questions: deletedQuestion._id },
+      { $pull: { questions: deletedQuestion._id } }
+    );
+
+    revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const editQuestion = async (params: EditQuestionParams) => {
+  try {
+    await connectToDatabase();
+
+    const { questionId, title, content, path } = params;
+
+    const question = await Question.findById(questionId);
+
+    if (!question) throw new Error('Question not found!');
+
+    question.title = title;
+    question.content = content;
+
+    await question.save();
 
     revalidatePath(path);
   } catch (error) {

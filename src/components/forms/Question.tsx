@@ -1,9 +1,10 @@
 'use client';
 import React, { useRef, useState } from 'react';
+import Image from 'next/image';
+import { useRouter, usePathname } from 'next/navigation';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useRouter, usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,48 +17,68 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Editor } from '@tinymce/tinymce-react';
-
-import { QuestionsSchema } from '@/lib/validation';
 import { Badge } from '../ui/badge';
-import Image from 'next/image';
-import { createQuestion } from '@/lib/actions/question.action';
+import { Editor } from '@tinymce/tinymce-react';
 import { useTheme } from '@/context/ThemeProvider';
 
-const type: any = 'create';
+import { QuestionsSchema } from '@/lib/validation';
+import { createQuestion, editQuestion } from '@/lib/actions/question.action';
 
 interface QuestionFormProps {
+  type: 'Edit' | 'Create';
   mongoUserId: string;
+  questionDetails?: string;
 }
 
-const Question = ({ mongoUserId }: QuestionFormProps) => {
+const Question = ({
+  type,
+  mongoUserId,
+  questionDetails,
+}: QuestionFormProps) => {
   const editorRef = useRef(null);
   const { mode } = useTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
+  let parsedQuestionDetails: any = null;
+
+  if (questionDetails && type === 'Edit') {
+    parsedQuestionDetails = JSON.parse(questionDetails) || '';
+  }
+
+  const groupedTags = parsedQuestionDetails?.tags?.map((tag: any) => tag.name);
+
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: '',
-      explanation: '',
-      tags: [],
+      title: parsedQuestionDetails?.title || '',
+      explanation: parsedQuestionDetails?.content || '',
+      tags: groupedTags || [],
     },
   });
 
   async function onSubmit(values: z.infer<typeof QuestionsSchema>) {
     setIsSubmitting(true);
     try {
-      await createQuestion({
-        title: values.title,
-        content: values.explanation,
-        tags: values.tags,
-        author: JSON.parse(mongoUserId),
-        path: pathname,
-      });
-
-      router.push('/');
+      if (type === 'Edit') {
+        await editQuestion({
+          title: values.title,
+          content: values.explanation,
+          path: pathname,
+          questionId: parsedQuestionDetails?._id,
+        });
+        router.push(`/question/${parsedQuestionDetails?._id}`);
+      } else {
+        await createQuestion({
+          title: values.title,
+          content: values.explanation,
+          tags: values.tags,
+          author: JSON.parse(mongoUserId),
+          path: pathname,
+        });
+        router.push('/');
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -149,7 +170,10 @@ const Question = ({ mongoUserId }: QuestionFormProps) => {
                     // eslint-disable-next-line no-return-assign
                     return (editorRef.current = editor);
                   }}
-                  initialValue="You can describe about your question here."
+                  initialValue={
+                    parsedQuestionDetails?.content ||
+                    'You can describe about your question here.'
+                  }
                   init={{
                     height: 500,
                     menubar: false,
@@ -204,6 +228,7 @@ const Question = ({ mongoUserId }: QuestionFormProps) => {
                   <Input
                     className="no-focus paragraph-regular background-light900_dark300 light-border-2 text-dark300_light700 min-h-[56px] border"
                     placeholder="Add tags..."
+                    disabled={type === 'Edit'}
                     onKeyDown={(e) => handleTagInputKeyDown(e, field)}
                   />
                   {field.value.length > 0 && (
@@ -212,16 +237,22 @@ const Question = ({ mongoUserId }: QuestionFormProps) => {
                         <Badge
                           key={tag}
                           className="subtle-medium background-light800_dark300 text-light400_light500 flex items-center justify-center gap-2 rounded-md border-none px-4 py-2 capitalize"
-                          onClick={() => handleTagRemove(tag, field)}
+                          onClick={() =>
+                            type === 'Create'
+                              ? handleTagRemove(tag, field)
+                              : null
+                          }
                         >
                           {tag}
-                          <Image
-                            src="/assets/icons/close.svg"
-                            alt="Close Icon"
-                            width={12}
-                            height={12}
-                            className="cursor-pointer object-contain invert-0 dark:invert"
-                          />
+                          {type === 'Create' && (
+                            <Image
+                              src="/assets/icons/close.svg"
+                              alt="Close Icon"
+                              width={12}
+                              height={12}
+                              className="cursor-pointer object-contain invert-0 dark:invert"
+                            />
+                          )}
                         </Badge>
                       ))}
                     </div>
@@ -242,9 +273,9 @@ const Question = ({ mongoUserId }: QuestionFormProps) => {
           disabled={isSubmitting}
         >
           {isSubmitting ? (
-            <>{type === 'edit' ? 'Editing...' : 'Posting...'}</>
+            <>{type === 'Edit' ? 'Editing...' : 'Posting...'}</>
           ) : (
-            <>{type === 'edit' ? 'Edit Question' : 'Ask a Question'}</>
+            <>{type === 'Edit' ? 'Edit Question' : 'Ask a Question'}</>
           )}
         </Button>
       </form>

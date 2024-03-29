@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { auth } from '@clerk/nextjs';
 
 import Metric from '@/components/shared/Metric';
@@ -7,20 +8,15 @@ import ParseHTML from '@/components/shared/ParseHTML';
 import RenderTag from '@/components/shared/RenderTag';
 import Answer from '@/components/forms/Answer';
 import AllAnswers from '@/components/shared/AllAnswers';
+import Voting from '@/components/shared/Voting';
 
 import { getQuestionById } from '@/lib/actions/question.action';
 import { formatLargeNumber, getTimestamp } from '@/lib/utils';
 import { getUserById } from '@/lib/actions/user.action';
-import { redirect } from 'next/navigation';
-import Voting from '@/components/shared/Voting';
 
-const QuestionPage = async ({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}) => {
+import { URLProps } from '@/types';
+
+const QuestionPage = async ({ params, searchParams }: URLProps) => {
   const { userId } = auth();
 
   if (!userId) redirect('/sign-in');

@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import QuestionTab from '@/components/shared/QuestionTab';
 
 import { getUserInfo } from '@/lib/actions/user.action';
-import { getJoinedDate, getTimestamp } from '@/lib/utils';
+import { getJoinedDate } from '@/lib/utils';
 
 import { URLProps } from '@/types';
 import AnswersTab from '@/components/shared/AnswersTab';

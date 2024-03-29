@@ -9,8 +9,10 @@ import Answer from '@/database/answer.model';
 import type {
   AnswerVoteParams,
   CreateAnswerParams,
+  DeleteAnswerParams,
   GetAnswersParams,
 } from './shared.types';
+import Interaction from '@/database/interaction.model';
 
 export const createAnswer = async (params: CreateAnswerParams) => {
   try {
@@ -110,6 +112,31 @@ export const downvoteAnswer = async (params: AnswerVoteParams) => {
     if (!answer) throw new Error('Could not find answer!');
 
     // TODO: Increase user reputation
+
+    revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteAnswer = async (params: DeleteAnswerParams) => {
+  try {
+    await connectToDatabase();
+
+    const { answerId, path } = params;
+
+    const answer = await Answer.findById(answerId);
+
+    if (!answer) throw new Error('Could not find answer!');
+
+    await Answer.deleteOne({ _id: answerId });
+
+    await Question.updateMany(
+      { _id: answer.question },
+      { $pull: { answers: answer._id } }
+    );
+
+    await Interaction.deleteMany({ answer: answer._id });
 
     revalidatePath(path);
   } catch (error) {

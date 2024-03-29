@@ -53,15 +53,16 @@ export const updateUser = async (params: UpdateUserParams) => {
 
     const { clerkId, updateData, path } = params;
 
-    const updatedUser = await User.findOneAndUpdate({ clerkId }, updateData, {
-      new: true,
-      upsert: true,
-    }).catch((err) => console.log({ err }));
-
-    console.log({ updatedUser });
+    const updatedUser: any = await User.findOneAndUpdate(
+      { clerkId },
+      updateData,
+      {
+        new: true,
+      }
+    ).catch((err) => console.log({ err }));
 
     revalidatePath(path);
-    // console.log(`User - ${updatedUser._id} updated Successfully`);
+    console.log(`User - ${updatedUser._id} updated Successfully`);
     return updatedUser;
   } catch (error) {
     console.log(error);
