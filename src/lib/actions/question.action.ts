@@ -1,5 +1,6 @@
 'use server';
 import { revalidatePath } from 'next/cache';
+import { FilterQuery } from 'mongoose';
 
 import { connectToDatabase } from './../mongoose';
 
@@ -22,7 +23,22 @@ export const getQuestions = async (params: GetQuestionsParams) => {
   try {
     await connectToDatabase();
 
-    const questions = await Question.find({})
+    const { searchQuery } = params;
+
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        {
+          title: { $regex: new RegExp(searchQuery, 'i') },
+        },
+        {
+          content: { $regex: new RegExp(searchQuery, 'i') },
+        },
+      ];
+    }
+
+    const questions = await Question.find(query)
       .populate({ path: 'tags', model: Tag })
       .populate({ path: 'author', model: User })
       .sort({ createdAt: -1 });
@@ -202,6 +218,20 @@ export const editQuestion = async (params: EditQuestionParams) => {
     await question.save();
 
     revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getHotQuestions = async () => {
+  try {
+    await connectToDatabase();
+
+    const hotQuestions = await Question.find()
+      .sort({ views: -1, upvotes: -1 })
+      .limit(5);
+
+    return hotQuestions;
   } catch (error) {
     console.log(error);
   }

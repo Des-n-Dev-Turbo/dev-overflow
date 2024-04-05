@@ -11,8 +11,12 @@ import NoResult from '@/components/shared/NoResult';
 
 import { getQuestions } from '@/lib/actions/question.action';
 
-export default async function Home() {
-  const result = await getQuestions({});
+import { SearchParamsProps } from '@/types';
+
+export default async function Home({ searchParams }: SearchParamsProps) {
+  const result = await getQuestions({
+    searchQuery: searchParams.q
+  });
 
   return (
     <>

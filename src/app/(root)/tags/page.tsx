@@ -2,13 +2,15 @@ import Link from 'next/link';
 
 import Filter from '@/components/shared/Filter';
 import LocalSearch from '@/components/shared/search/LocalSearch';
+import NoResult from '@/components/shared/NoResult';
 
 import { UserFilters } from '@/constants/filters';
-import NoResult from '@/components/shared/NoResult';
 import { getAllTags } from '@/lib/actions/tags.action';
 
-const TagsPage = async () => {
-  let result = await getAllTags({});
+import { SearchParamsProps } from '@/types';
+
+const TagsPage = async ({ searchParams }: SearchParamsProps) => {
+  let result = await getAllTags({ searchQuery: searchParams.q });
 
   if (!result) {
     result = { tags: [] };
