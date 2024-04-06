@@ -23,7 +23,9 @@ const QuestionPage = async ({ params, searchParams }: URLProps) => {
 
   const mongoUser = await getUserById({ userId });
 
-  const result = await getQuestionById({ questionId: params.id });
+  const result = await getQuestionById({
+    questionId: params.id,
+  });
 
   return (
     <>
@@ -99,6 +101,7 @@ const QuestionPage = async ({ params, searchParams }: URLProps) => {
         questionId={result._id}
         userId={JSON.stringify(mongoUser._id)}
         totalAnswers={result.answers.length}
+        filter={searchParams.filter}
       />
       <Answer
         userId={JSON.stringify(mongoUser._id)}

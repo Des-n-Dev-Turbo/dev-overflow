@@ -4,13 +4,16 @@ import Filter from '@/components/shared/Filter';
 import LocalSearch from '@/components/shared/search/LocalSearch';
 import NoResult from '@/components/shared/NoResult';
 
-import { UserFilters } from '@/constants/filters';
+import { TagFilters } from '@/constants/filters';
 import { getAllTags } from '@/lib/actions/tags.action';
 
 import { SearchParamsProps } from '@/types';
 
 const TagsPage = async ({ searchParams }: SearchParamsProps) => {
-  let result = await getAllTags({ searchQuery: searchParams.q });
+  let result = await getAllTags({
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+  });
 
   if (!result) {
     result = { tags: [] };
@@ -32,7 +35,7 @@ const TagsPage = async ({ searchParams }: SearchParamsProps) => {
         />
 
         <Filter
-          filters={UserFilters}
+          filters={TagFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
         />
       </div>

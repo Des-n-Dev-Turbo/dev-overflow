@@ -19,7 +19,11 @@ export default async function CollectionPage({
 
   if (!userId) redirect('/sign-in');
 
-  const result = await getSavedQuestions({ clerkId: userId, searchQuery: searchParams.q });
+  const result = await getSavedQuestions({
+    clerkId: userId,
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+  });
 
   return (
     <>
