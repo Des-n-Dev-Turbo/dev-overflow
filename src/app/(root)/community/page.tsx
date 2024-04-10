@@ -3,19 +3,22 @@ import Link from 'next/link';
 import Filter from '@/components/shared/Filter';
 import LocalSearch from '@/components/shared/search/LocalSearch';
 import UserCard from '@/components/cards/UserCard';
+import Pagination from '@/components/shared/Pagination';
 
 import { UserFilters } from '@/constants/filters';
 import { getAllUsers } from '@/lib/actions/user.action';
+
 import { SearchParamsProps } from '@/types';
 
 const CommunityPage = async ({ searchParams }: SearchParamsProps) => {
   let result = await getAllUsers({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
+    page: searchParams.page ? +searchParams.page : 1,
   });
 
   if (!result) {
-    result = { users: [] };
+    result = { users: [], isNext: false };
   }
 
   return (
@@ -51,6 +54,12 @@ const CommunityPage = async ({ searchParams }: SearchParamsProps) => {
           </div>
         )}
       </section>
+      <div className="mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result?.isNext || false}
+        />
+      </div>
     </>
   );
 };

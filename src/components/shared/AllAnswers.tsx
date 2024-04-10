@@ -1,13 +1,14 @@
-import Filter from './Filter';
-
-import { getAnswers } from '@/lib/actions/answer.action';
-
-import { AnswerFilters } from '@/constants/filters';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getTimestamp } from '@/lib/utils';
+
+import Filter from './Filter';
 import ParseHTML from './ParseHTML';
 import Voting from './Voting';
+import Pagination from './Pagination';
+
+import { getAnswers } from '@/lib/actions/answer.action';
+import { getTimestamp } from '@/lib/utils';
+import { AnswerFilters } from '@/constants/filters';
 
 interface AllAnswerProps {
   questionId: string;
@@ -84,6 +85,12 @@ const AllAnswers = async ({
               <ParseHTML data={answer.content} />
             </article>
           ))}
+      </div>
+      <div className="mt-10">
+        <Pagination
+          pageNumber={page ? +page : 1}
+          isNext={result?.isNext || false}
+        />
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import Filter from '@/components/shared/Filter';
 import LocalSearch from '@/components/shared/search/LocalSearch';
 import QuestionCard from '@/components/cards/QuestionCard';
 import NoResult from '@/components/shared/NoResult';
+import Pagination from '@/components/shared/Pagination';
 
 import { QuestionFilters } from '@/constants/filters';
 
@@ -23,6 +24,7 @@ export default async function CollectionPage({
     clerkId: userId,
     searchQuery: searchParams.q,
     filter: searchParams.filter,
+    page: searchParams.page ? +searchParams.page : 1,
   });
 
   return (
@@ -64,6 +66,12 @@ export default async function CollectionPage({
             linkTitle="Ask a Question"
           />
         )}
+      </div>
+      <div className="mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result?.isNext || false}
+        />
       </div>
     </>
   );
