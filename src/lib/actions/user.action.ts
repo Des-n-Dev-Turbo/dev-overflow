@@ -8,6 +8,8 @@ import Question from '@/database/question.model';
 import Tag from '@/database/tag.model';
 import Answer from '@/database/answer.model';
 
+import { assignBadges } from '../utils';
+
 import type {
   CreateUserParams,
   DeleteUserParams,
@@ -18,6 +20,7 @@ import type {
   ToggleSaveQuestionParams,
   UpdateUserParams,
 } from './shared.types';
+import { BadgeCriteriaType } from '@/types';
 
 export const getUserById = async (params: GetUserByIdParams) => {
   try {
@@ -261,7 +264,49 @@ export const getUserInfo = async (params: GetUserByIdParams) => {
 
     const totalAnswers = await Answer.countDocuments({ author: user._id });
 
-    return { user, totalQuestions, totalAnswers };
+    const [questionUpvotes] = await Question.aggregate([
+      { $match: { author: user._id } },
+      { $project: { _id: 0, upvotes: { $size: '$upvotes' } } },
+      { $group: { _id: null, totalUpvotes: { $sum: '$upvotes' } } },
+    ]);
+
+    const [answerUpvotes] = await Answer.aggregate([
+      { $match: { author: user._id } },
+      { $project: { _id: 0, upvotes: { $size: '$upvotes' } } },
+      { $group: { _id: null, totalUpvotes: { $sum: '$upvotes' } } },
+    ]);
+
+    const [questionViews] = await Question.aggregate([
+      { $match: { author: user._id } },
+      { $group: { _id: null, totalViews: { $sum: '$views' } } },
+    ]);
+
+    const criteria = [
+      { type: 'QUESTION_COUNT' as BadgeCriteriaType, count: totalQuestions },
+      { type: 'ANSWER_COUNT' as BadgeCriteriaType, count: totalAnswers },
+      {
+        type: 'QUESTION_UPVOTES' as BadgeCriteriaType,
+        count: questionUpvotes?.totalUpvotes || 0,
+      },
+      {
+        type: 'ANSWER_UPVOTES' as BadgeCriteriaType,
+        count: answerUpvotes?.totalUpvotes || 0,
+      },
+      {
+        type: 'TOTAL_VIEWS' as BadgeCriteriaType,
+        count: questionViews?.totalViews || 0,
+      },
+    ];
+
+    const badgeCounts = assignBadges({ criteria });
+
+    return {
+      user,
+      totalQuestions,
+      totalAnswers,
+      badgeCounts,
+      reputation: user.reputation,
+    };
   } catch (error) {
     console.log(error);
   }
@@ -284,7 +329,7 @@ export const getUserQuestions = async (params: GetUserStatsParams) => {
     const userQuestions = await Question.find({ author: user._id })
       .skip(skipAmount)
       .limit(pageSize)
-      .sort({ views: -1, upvotes: -1 })
+      .sort({ createdAt: -1, views: -1, upvotes: -1 })
       .populate('tags', '_id name')
       .populate('author', '_id clerkId picture name');
 

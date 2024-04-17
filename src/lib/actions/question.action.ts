@@ -79,7 +79,7 @@ export const createQuestion = async (params: CreateQuestionParams) => {
 
     const { title, content, tags, author, path } = params;
 
-    // Create the question
+    //* Create the question
     const question = await Question.create({
       title,
       content,
@@ -88,7 +88,7 @@ export const createQuestion = async (params: CreateQuestionParams) => {
 
     const tagDocuments = [];
 
-    // Create the tags or get them if they already exist
+    //* Create the tags or get them if they already exist
     for (const tag of tags) {
       const existingTag = await Tag.findOneAndUpdate(
         { name: { $regex: new RegExp(`^${tag}$`, 'i') } },
@@ -103,9 +103,16 @@ export const createQuestion = async (params: CreateQuestionParams) => {
       $push: { tags: { $each: tagDocuments } },
     });
 
-    // TODO: Create an interaction record for the user's ask_question action
+    //* Create an interaction record for the user's ask_question action
+    await Interaction.create({
+      user: author,
+      action: 'ask_question',
+      question: question._id,
+      tags: tagDocuments,
+    });
 
-    // TODO: Increment author's reputation by +5 for creating a question
+    //* Increment author's reputation by +5 for creating a question
+    await User.findByIdAndUpdate(author, { $inc: { reputation: 5 } });
 
     revalidatePath(path);
   } catch (error) {
@@ -162,7 +169,16 @@ export const upvoteQuestion = async (params: QuestionVoteParams) => {
 
     if (!question) throw new Error('Question not found!');
 
-    // TODO: Increase user reputation
+    //*  Increase user reputation
+    //* Increase/Decrease reputation by 1 for Upvoting/Revoking upvote from Question
+    await User.findByIdAndUpdate(userId, {
+      $inc: { reputation: hasupVoted ? -1 : 1 },
+    });
+
+    //* Increment/Decrement the reputation of user by 10 for recieving an upvote/downvote
+    await User.findByIdAndUpdate(question.author, {
+      $inc: { reputation: hasupVoted ? -10 : 10 },
+    });
 
     revalidatePath(path);
   } catch (error) {
@@ -195,7 +211,14 @@ export const downvoteQuestion = async (params: QuestionVoteParams) => {
 
     if (!question) throw new Error('Question not found!');
 
-    // TODO: Increase user reputation
+    //* Increase user reputation
+    await User.findByIdAndUpdate(userId, {
+      $inc: { reputation: hasdownVoted ? -1 : 1 },
+    });
+
+    await User.findByIdAndUpdate(question.author, {
+      $inc: { reputation: hasdownVoted ? -10 : 10 },
+    });
 
     revalidatePath(path);
   } catch (error) {
