@@ -10,6 +10,12 @@ import { getAllUsers } from '@/lib/actions/user.action';
 
 import { SearchParamsProps } from '@/types';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Community | Dev Overflow',
+};
+
 const CommunityPage = async ({ searchParams }: SearchParamsProps) => {
   let result = await getAllUsers({
     searchQuery: searchParams.q,

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
 import HomeFilters from '@/components/home/HomeFilters';
 import Filter from '@/components/shared/Filter';
@@ -12,6 +13,10 @@ import { HomePageFilters } from '@/constants/filters';
 import { getQuestions } from '@/lib/actions/question.action';
 
 import { SearchParamsProps } from '@/types';
+
+export const metadata: Metadata = {
+  title: 'Home | Dev Overflow',
+};
 
 export default async function Home({ searchParams }: SearchParamsProps) {
   const result = await getQuestions({

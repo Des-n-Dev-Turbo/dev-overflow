@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+import { toast } from '../ui/use-toast';
 import { formatLargeNumber } from '@/lib/utils';
 import {
   downvoteQuestion,
@@ -54,11 +55,19 @@ const Voting = ({
       questionId: JSON.parse(itemId),
       path: pathname,
     });
+
+    return toast({
+      title: `Question ${!hasSaved ? 'Saved in' : 'Removed from'} your collection`,
+      variant: !hasSaved ? 'default' : 'destructive',
+    });
   };
 
   const handleVote = async (voteType: string) => {
     if (!userId) {
-      return;
+      return toast({
+        title: 'Please log in',
+        description: 'You must be logged in to perform this action',
+      });
     }
 
     const paramsObj = {
@@ -75,8 +84,11 @@ const Voting = ({
         await upvoteAnswer({ ...paramsObj, answerId: JSON.parse(itemId) });
       }
 
-      // TODO: Show toast for upvoting question/answer
-      return;
+      //* Show toast for upvoting question/answer
+      return toast({
+        title: `Upvote ${!hasUpvoted ? 'Successful' : 'Removed'}`,
+        variant: !hasUpvoted ? 'default' : 'destructive',
+      });
     }
     if (voteType === 'downvote') {
       if (type === 'Question') {
@@ -88,7 +100,11 @@ const Voting = ({
         await downvoteAnswer({ ...paramsObj, answerId: JSON.parse(itemId) });
       }
 
-      // TODO: Show toast for downvoting question/answer
+      //* Show toast for downvoting question/answer
+      return toast({
+        title: `Downvote ${!hasDownvoted ? 'Successful' : 'Removed'}`,
+        variant: !hasDownvoted ? 'default' : 'destructive',
+      });
     }
   };
 
